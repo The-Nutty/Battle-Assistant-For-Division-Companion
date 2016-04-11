@@ -13,7 +13,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 public class Main {
@@ -52,12 +51,14 @@ public class Main {
 		});
 		menu.add(closeItem);
 
+		//set icon
 		Image image = Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/images/icon2.png"));
 		TrayIcon icon = new TrayIcon(image, AppName, menu);
 		icon.setImageAutoSize(true);
 
 		tray.add(icon);
 
+		//get IP to listen on
 		GetIp ip = new GetIp();
 		IP = ip.Ip;
 		System.out.println("Using: " + IP);
@@ -67,7 +68,7 @@ public class Main {
 		DatagramSocket serverSocket = null;
 		try {
 			serverSocket = new DatagramSocket(54545, InetAddress.getByName(IP));
-			//set timeout so that in loop below it wont hold the loop up
+			//set timeout so that in loop below it wont hold the loop up (for when quit is pressed)
 			serverSocket.setSoTimeout(500);
 		} catch (java.net.BindException e) {
 			JOptionPane.showMessageDialog(null,
@@ -76,20 +77,25 @@ public class Main {
 			System.exit(0);
 		}
 
-		
+		//forever until close is pressed 
 		while (Going) {
 			byte[] receiveData = new byte[1024];
 			byte[] sendData = new byte[1024];
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+			
 			try {
+				//wait for client to send something. If nothing comes before time out, exeption thrown.
 				serverSocket.receive(receivePacket);
 
 				String command = new String(receivePacket.getData()).trim();
 				System.out.println("FROM CLIENT:" + command);
 
+				//exicture sent command
 				MakeAction action = new MakeAction();
 				String responce = action.doAction(command);
 
+				
+				//send responce from MakeAction.doAction back to client
 				InetAddress IPAddress = receivePacket.getAddress();
 				int port = receivePacket.getPort();
 

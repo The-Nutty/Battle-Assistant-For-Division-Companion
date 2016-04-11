@@ -28,17 +28,19 @@ public class MakeAction {
 	}
 	
 	public String doAction(String command) throws InterruptedException{
-		Integer[] Instructions = ActionMap.get(command);
+		Integer[] Instructions = ActionMap.get(command);//fetches the list of commands related to the command
 		
-		if (Instructions == null){
+		if (Instructions == null){//the command is not found
 			return "unknown instruction";
 		}
+		
+		//for each key hold it down in order
 		for (int i = 0; i < Instructions.length; i++){
 			robot.keyPress(Instructions[i]);
 			Thread.sleep(50);
 		}
 		
-		
+		//let go of each key in reverse order
 		for (int i = Instructions.length - 1; i > -1; i = i - 1){
 			robot.keyRelease(Instructions[i]);
 			Thread.sleep(50);
